@@ -1,121 +1,93 @@
 # SonicTopology
-Mapping symbolic sound patterns onto 3D structures
+3D Object Analyzer and Sound Symbolism Classifier
+=================================================
 
-# -*- coding: utf-8 -*-
-"""
-Simbolismo Sonoro e Modelagem Tridimensional - Pipeline Completo
+**SonicTopology** é um software desenvolvido em Python que permite associar objetos tridimensionais (.obj) a padrões fonológicos recorrentes (fonestemas), extraindo atributos geométricos e treinando uma rede neural para reconhecer relações simbólicas entre forma e som.
 
-Este script realiza:
-1. Seleção de múltiplos arquivos .obj
-2. Extração de atributos geométricos com trimesh
-3. Salvamento em CSV
-4. Seleção do CSV de fonestemas codificados
-5. Junção e treinamento com MLPClassifier
-6. Exibição de relatório de desempenho
+Inspirado por estudos sobre simbolismo sonoro (Sapir, 1929; Imai & Kita, 2014), este pipeline automatiza o mapeamento entre ambientes virtuais e fonestemas, oferecendo uma ferramenta inovadora para experimentos computacionais em linguística e design simbólico.
 
-Requisitos: pandas, scikit-learn, trimesh, tkinter
-"""
+## Features
+---------
+- Interface gráfica para seleção múltipla de arquivos `.obj`
+- Extração automática de atributos geométricos (volume, área, simetria, rugosidade)
+- Entrada manual de fonestemas
+- Combinação com CSV contendo codificações fonológicas
+- Treinamento de rede neural (MLPClassifier) com scikit-learn
+- Geração de relatório de classificação
 
-import trimesh
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report
-from tkinter import filedialog, Tk, messagebox
-import os
+## Requirements
+--------------
+1. Python 3.8+
+2. Bibliotecas:
+   - `pandas`
+   - `numpy`
+   - `scikit-learn`
+   - `trimesh`
+   - `tkinter` (interface gráfica)
 
-def calcular_rugosidade(mesh):
-    if not mesh.is_watertight:
-        mesh = mesh.convex_hull
-    curvaturas = mesh.vertex_normals
-    variabilidade = np.std(curvaturas)
-    return float(variabilidade)
+Instale as dependências com:
 
-def extrair_atributos(path):
-    mesh = trimesh.load_mesh(path)
-    atributos = {
-        'nome_arquivo': os.path.basename(path),
-        'volume': float(mesh.volume),
-        'area_superficial': float(mesh.area),
-        'num_vertices': len(mesh.vertices),
-        'num_arestas': len(mesh.edges),
-        'num_faces': len(mesh.faces),
-        'simetria_x': float(mesh.symmetry().get('x', np.nan)),
-        'simetria_y': float(mesh.symmetry().get('y', np.nan)),
-        'simetria_z': float(mesh.symmetry().get('z', np.nan)),
-        'rugosidade': calcular_rugosidade(mesh),
-    }
-    return atributos
+```bash
+pip install pandas numpy scikit-learn trimesh
+```
 
-def selecionar_arquivos_obj():
-    root = Tk()
-    root.withdraw()
-    caminhos = filedialog.askopenfilenames(title="Selecione arquivos .obj", filetypes=[("OBJ files", "*.obj")])
-    return list(caminhos)
+## How to Use
+------------
+1. Execute o script principal:
+   ```bash
+   python simbolismo_sonoro_pipeline_completo.py
+   ```
 
-def selecionar_arquivo_csv(titulo):
-    root = Tk()
-    root.withdraw()
-    caminho = filedialog.askopenfilename(title=titulo, filetypes=[("CSV Files", "*.csv")])
-    return caminho
+2. Siga as etapas guiadas:
+   - Selecione os arquivos `.obj`
+   - Digite um fonestema para cada arquivo
+   - Selecione o arquivo `.csv` com codificações fonológicas dos fonestemas
 
-def main():
-    print("=== Simbolismo Sonoro e Modelagem 3D ===")
+3. O script irá:
+   - Calcular atributos dos modelos 3D
+   - Combinar esses dados com as codificações fonológicas
+   - Treinar uma rede neural MLP
+   - Exibir um relatório de desempenho
 
-    caminhos_obj = selecionar_arquivos_obj()
-    if not caminhos_obj:
-        messagebox.showerror("Erro", "Nenhum arquivo .obj selecionado.")
-        return
+## Output
+--------
+- `atributos_extraidos.csv`: contém os atributos geométricos + fonestemas inseridos
+- Relatório de classificação no console com precisão, recall e f1-score por classe
 
-    lista_atributos = []
-    for path in caminhos_obj:
-        try:
-            atributos = extrair_atributos(path)
-            print(f"Atributos extraídos de: {atributos['nome_arquivo']}")
-            lista_atributos.append(atributos)
-        except Exception as e:
-            print(f"[ERRO] Falha ao processar {path}: {e}")
+## Example Attributes Extracted
+| nome_arquivo       | volume | area_superficial | simetria_x | rugosidade | fonestema |
+|--------------------|--------|------------------|------------|------------|-----------|
+| cave_high.obj      | 10.32  | 25.61            | 0.89       | 0.12       | sl-       |
+| cave_low.obj       | 5.12   | 14.92            | 0.45       | 0.33       | gl-       |
 
-    df_atributos = pd.DataFrame(lista_atributos)
+## Customization
+---------------
+- Altere a arquitetura da rede neural modificando os parâmetros de `MLPClassifier`:
+```python
+mlp = MLPClassifier(hidden_layer_sizes=(16, 8), max_iter=1000)
+```
+- Substitua o método de input manual para leitura automática de fonestemas se desejar trabalhar com arquivos já anotados.
 
-    # Solicitar entrada manual de fonestema
-    fonestemas = []
-    print("\nInsira um fonestema para cada arquivo .obj:")
-    for nome in df_atributos['nome_arquivo']:
-        valor = input(f"Fonestema para {nome}: ")
-        fonestemas.append(valor.strip())
-    df_atributos['fonestema'] = fonestemas
+## Known Limitations
+-------------------
+- Não realiza pré-processamento de malhas inválidas (usa convex hull quando necessário).
+- A entrada de fonestemas é manual.
+- Requer correspondência exata entre nomes no CSV e entradas digitadas.
 
-    # Salvar atributos em CSV
-    output_csv = "atributos_extraidos.csv"
-    df_atributos.to_csv(output_csv, index=False)
-    print(f"\nAtributos salvos em {output_csv}")
+## Authors
+-------
+1. Wellington Mendes (UFU, 2025)  
+   - Email: wellington.mendes@ufu.br  
+   - [Perfil Institucional](http://www.portal.ileel.ufu.br/pessoas/docentes/wellington-araujo-mendes-junior)  
+   - [Google Scholar](https://scholar.google.com/citations?user=eI4709wAAAAJ&hl=pt-BR)
 
-    # Selecionar codificação fonestêmica
-    print("\nSelecione o CSV com codificação dos fonestemas:")
-    caminho_fono = selecionar_arquivo_csv("Selecionar codificação fonestêmica")
-    if not caminho_fono:
-        messagebox.showerror("Erro", "Arquivo de fonestemas não selecionado.")
-        return
+2. Guilherme Felisbino (UFU, 2025)  
+   - Email: guihperez6@gmail.com
 
-    fono_df = pd.read_csv(caminho_fono)
-    df_final = pd.merge(df_atributos, fono_df, on="fonestema")
-    X = df_final.drop(columns=["nome_arquivo", "fonestema", "consoante_1", "consoante_2"])
-    y = df_final["fonestema"]
+## License
+-------
+Este software é distribuído sob a Licença MIT. Livre para modificar e reutilizar.
 
-    # Treinar modelo
-    print("\nTreinando rede neural MLP...")
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, stratify=y, random_state=42)
-    mlp = MLPClassifier(hidden_layer_sizes=(16, 8), max_iter=1000, random_state=42)
-    mlp.fit(X_train, y_train)
-    y_pred = mlp.predict(X_test)
-
-    # Relatório
-    print("\n=== RELATÓRIO DE CLASSIFICAÇÃO ===")
-    print(classification_report(y_test, y_pred))
-
-    print("\nPipeline concluído com sucesso.")
-
-if __name__ == "__main__":
-    main()
+## Contact
+--------
+Para dúvidas, sugestões ou contribuições, entre em contato pelos e-mails acima.
