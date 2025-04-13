@@ -1,5 +1,5 @@
 # SonicTopology
-Classificador fonestêmico baseado em geometrias 3D
+Classificador fonestêmico baseado em redes neurais e geometrias 3D
 =================================================
 
 **SonicTopology** é um software desenvolvido em Python que permite associar objetos tridimensionais (.obj) a padrões fonológicos recorrentes (fonestemas), extraindo atributos geométricos e treinando uma rede neural para reconhecer relações simbólicas entre forma e som.
