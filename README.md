@@ -6,7 +6,7 @@ Classificador fonestêmico baseado em geometrias 3D
 
 Inspirado por estudos sobre simbolismo sonoro (Sapir, 1929; Imai & Kita, 2014), este pipeline automatiza o mapeamento entre ambientes virtuais e fonestemas, oferecendo uma ferramenta inovadora para experimentos computacionais em linguística e design simbólico.
 
-## Features
+## Características
 ---------
 - Interface gráfica para seleção múltipla de arquivos `.obj`
 - Extração automática de atributos geométricos (volume, área, simetria, rugosidade)
@@ -15,7 +15,7 @@ Inspirado por estudos sobre simbolismo sonoro (Sapir, 1929; Imai & Kita, 2014), 
 - Treinamento de rede neural (MLPClassifier) com scikit-learn
 - Geração de relatório de classificação
 
-## Requirements
+## Requisitos
 --------------
 1. Python 3.8+
 2. Bibliotecas:
@@ -31,7 +31,7 @@ Instale as dependências com:
 pip install pandas numpy scikit-learn trimesh
 ```
 
-## How to Use
+## Como usar
 ------------
 1. Execute o script principal:
    ```bash
@@ -60,7 +60,7 @@ pip install pandas numpy scikit-learn trimesh
 | cave_high.obj      | 10.32  | 25.61            | 0.89       | 0.12       | sl-       |
 | cave_low.obj       | 5.12   | 14.92            | 0.45       | 0.33       | gl-       |
 
-## Customization
+## Customização
 ---------------
 - Altere a arquitetura da rede neural modificando os parâmetros de `MLPClassifier`:
 ```python
@@ -68,26 +68,19 @@ mlp = MLPClassifier(hidden_layer_sizes=(16, 8), max_iter=1000)
 ```
 - Substitua o método de input manual para leitura automática de fonestemas se desejar trabalhar com arquivos já anotados.
 
-## Known Limitations
+## Limitações
 -------------------
 - Não realiza pré-processamento de malhas inválidas (usa convex hull quando necessário).
 - A entrada de fonestemas é manual.
 - Requer correspondência exata entre nomes no CSV e entradas digitadas.
 
-## Authors
+## Autor
 -------
-1. Wellington Mendes (UFU, 2025)  
+Wellington Mendes (UFU, 2025)  
    - Email: wellington.mendes@ufu.br  
    - [Perfil Institucional](http://www.portal.ileel.ufu.br/pessoas/docentes/wellington-araujo-mendes-junior)  
    - [Google Scholar](https://scholar.google.com/citations?user=eI4709wAAAAJ&hl=pt-BR)
 
-2. Guilherme Felisbino (UFU, 2025)  
-   - Email: guihperez6@gmail.com
-
-## License
+## Licença
 -------
 Este software é distribuído sob a Licença MIT. Livre para modificar e reutilizar.
-
-## Contact
---------
-Para dúvidas, sugestões ou contribuições, entre em contato pelos e-mails acima.
